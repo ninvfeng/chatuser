@@ -7,3 +7,11 @@ export interface CosplayItem {
   name: string
   content: string
 }
+
+export interface User {
+  id: number,
+  email: string,
+  nickname: string,
+  times: number,
+  token: string
+}
