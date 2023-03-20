@@ -9,6 +9,7 @@ import SystemRoleSettings from './SystemRoleSettings'
 import Login from './Login'
 import { generateSignature } from '@/utils/auth'
 import { useThrottleFn } from 'solidjs-use'
+import Charge from './Charge.jsx'
 
 export default () => {
   let inputRef: HTMLTextAreaElement
@@ -18,8 +19,8 @@ export default () => {
   const [currentAssistantMessage, setCurrentAssistantMessage] = createSignal('')
   const [loading, setLoading] = createSignal(false)
   const [controller, setController] = createSignal<AbortController>(null)
-  const [timesLimit, setTimesLimit] = createSignal(50)
   const [isLogin, setIsLogin] = createSignal(true)
+  const [showCharge, setShowCharge] = createSignal(false)
   const [user, setUser] = createSignal<User>({
     id: 0,
     email: '',
@@ -219,8 +220,11 @@ export default () => {
         </Show>
       </div>
       <div class="flex items-center">
-        <Show when={isLogin()}>
-          <p mt-1 op-60>您好{user().nickname}, 您本月剩余额度{user().times}次</p>
+        <Show when={isLogin() && user().nickname}>
+          <p mt-1 op-60>
+            您好{user().nickname}, 您本月剩余额度{user().times}次
+            <span onClick={() => { setShowCharge(true) }} class="border-1 px-2 py-1 ml-2 rounded-md transition-colors bg-slate/20 cursor-pointer hover:bg-slate/50">充值</span>
+          </p>
         </Show>
       </div>
 
@@ -228,6 +232,15 @@ export default () => {
         <Login
           isLogin={isLogin}
           setIsLogin={setIsLogin}
+          user={user}
+          setUser={setUser}
+        />
+      </Show>
+
+      <Show when={showCharge()}>
+        <Charge
+          showCharge={showCharge}
+          setShowCharge={setShowCharge}
           user={user}
           setUser={setUser}
         />
