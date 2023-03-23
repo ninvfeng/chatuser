@@ -32,6 +32,7 @@ export default (props: Props) => {
             props.setIsLogin(true)
             props.setUser(responseJson.data)
         } else {
+            alert(responseJson.message)
         }
     }
 
@@ -56,6 +57,10 @@ export default (props: Props) => {
             }),
         });
         const responseJson = await response.json();
+        if (responseJson.code !== 200) {
+            alert(responseJson.message)
+            setCountdown(3)
+        }
     }
 
     return (
