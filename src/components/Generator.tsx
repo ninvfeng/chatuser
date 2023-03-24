@@ -1,6 +1,5 @@
 import Qustion from './Question.js'
 import { getDate } from '@/utils/func'
-import type { ChatMessage, User } from '@/types'
 import { createSignal, Index, Show, onMount, onCleanup, createEffect, untrack } from 'solid-js'
 import IconClear from './icons/Clear'
 import IconRand from './icons/Rand'
@@ -10,12 +9,15 @@ import Login from './Login'
 import { generateSignature } from '@/utils/auth'
 import { useThrottleFn } from 'solidjs-use'
 import Charge from './Charge.jsx'
+import ErrorMessageItem from './ErrorMessageItem'
+import type { ChatMessage, ErrorMessage, User } from '@/types'
 
 export default () => {
   let inputRef: HTMLTextAreaElement
   const [currentSystemRoleSettings, setCurrentSystemRoleSettings] = createSignal('')
   const [systemRoleEditing, setSystemRoleEditing] = createSignal(false)
   const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
+  const [currentError, setCurrentError] = createSignal<ErrorMessage>()
   const [currentAssistantMessage, setCurrentAssistantMessage] = createSignal('')
   const [loading, setLoading] = createSignal(false)
   const [controller, setController] = createSignal<AbortController>(null)
@@ -56,12 +58,13 @@ export default () => {
 
   })
 
-  const handleButtonClick = async () => {
+  const handleButtonClick = async() => {
     const inputValue = inputRef.value
-    if (!inputValue) {
+    if (!inputValue)
       return
-    }
-    // @ts-ignore
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     if (window?.umami) umami.trackEvent('chat_generate')
     inputRef.value = ''
     setMessageList([
@@ -78,9 +81,10 @@ export default () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
   }, 300, false, true)
 
-  const requestWithLatestMessage = async () => {
+  const requestWithLatestMessage = async() => {
     setLoading(true)
     setCurrentAssistantMessage('')
+    setCurrentError(null)
     const storagePassword = localStorage.getItem('pass')
     try {
       const controller = new AbortController()
@@ -110,12 +114,15 @@ export default () => {
       })
 
       if (!response.ok) {
-        throw new Error(response.statusText)
+        const error = await response.json()
+        console.error(error.error)
+        setCurrentError(error.error)
+        throw new Error('Request failed')
       }
       const data = response.body
-      if (!data) {
+      if (!data)
         throw new Error('No data')
-      }
+
       const reader = data.getReader()
       const decoder = new TextDecoder('utf-8')
       let done = false
@@ -123,13 +130,13 @@ export default () => {
       while (!done) {
         const { value, done: readerDone } = await reader.read()
         if (value) {
-          let char = decoder.decode(value)
-          if (char === '\n' && currentAssistantMessage().endsWith('\n')) {
+          const char = decoder.decode(value)
+          if (char === '\n' && currentAssistantMessage().endsWith('\n'))
             continue
-          }
-          if (char) {
+
+          if (char)
             setCurrentAssistantMessage(currentAssistantMessage() + char)
-          }
+
           smoothToBottom()
         }
         done = readerDone
@@ -163,7 +170,7 @@ export default () => {
 
   const clear = () => {
     inputRef.value = ''
-    inputRef.style.height = 'auto';
+    inputRef.style.height = 'auto'
     setMessageList([])
     setCurrentAssistantMessage('')
     // setCurrentSystemRoleSettings('')
@@ -179,21 +186,19 @@ export default () => {
   const retryLastFetch = () => {
     if (messageList().length > 0) {
       const lastMessage = messageList()[messageList().length - 1]
-      console.log(lastMessage)
-      if (lastMessage.role === 'assistant') {
+      if (lastMessage.role === 'assistant')
         setMessageList(messageList().slice(0, -1))
-        requestWithLatestMessage()
-      }
+
+      requestWithLatestMessage()
     }
   }
 
   const handleKeydown = (e: KeyboardEvent) => {
-    if (e.isComposing || e.shiftKey) {
+    if (e.isComposing || e.shiftKey)
       return
-    }
-    if (e.key === 'Enter') {
+
+    if (e.key === 'Enter')
       handleButtonClick()
-    }
   }
 
   const randQuestion = () => {
@@ -279,6 +284,7 @@ export default () => {
             />
           )
         }
+        { currentError() && <ErrorMessageItem data={currentError()} onRetry={retryLastFetch} /> }
         <Show
           when={!loading()}
           fallback={() => (

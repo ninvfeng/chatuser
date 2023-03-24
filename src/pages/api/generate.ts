@@ -1,9 +1,9 @@
-import type { APIRoute } from 'astro'
+// #vercel-disable-blocks
+import { ProxyAgent, fetch } from 'undici'
+// #vercel-end
 import { generatePayload, parseOpenAIStream } from '@/utils/openAI'
 import { verifySignature } from '@/utils/auth'
-// #vercel-disable-blocks
-import { fetch, ProxyAgent } from 'undici'
-// #vercel-end
+import type { APIRoute } from 'astro'
 
 const apiKey = import.meta.env.OPENAI_API_KEY
 const httpsProxy = import.meta.env.HTTPS_PROXY
@@ -11,29 +11,35 @@ const baseUrl = (import.meta.env.OPENAI_API_BASE_URL || 'https://api.openai.com'
 const sitePassword = import.meta.env.SITE_PASSWORD
 const API_URL = import.meta.env.API_URL
 
-export const post: APIRoute = async (context) => {
-
+export const post: APIRoute = async(context) => {
   const body = await context.request.json()
   const { sign, time, messages, pass, token } = body
   if (!messages) {
-    return new Response('No input text')
+    return new Response(JSON.stringify({
+      error: {
+        message: 'No input text.',
+      },
+    }), { status: 400 })
   }
-
-  // if (sitePassword && sitePassword !== pass) {
-  //   return new Response('Invalid password')
-  // }
-
-  if (import.meta.env.PROD && !await verifySignature({ t: time, m: messages?.[messages.length - 1]?.content || '', }, sign)) {
-    return new Response('Invalid signature')
+  if (sitePassword && sitePassword !== pass) {
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Invalid password.',
+      },
+    }), { status: 401 })
+  }
+  if (import.meta.env.PROD && !await verifySignature({ t: time, m: messages?.[messages.length - 1]?.content || '' }, sign)) {
+    return new Response(JSON.stringify({
+      error: {
+        message: 'Invalid signature.',
+      },
+    }), { status: 401 })
   }
   const initOptions = generatePayload(apiKey, messages)
   // #vercel-disable-blocks
-  if (httpsProxy) {
-    initOptions['dispatcher'] = new ProxyAgent(httpsProxy)
-  }
+  if (httpsProxy)
+    initOptions.dispatcher = new ProxyAgent(httpsProxy)
   // #vercel-end
-
-  console.log(token)
 
   // 消耗次数
   const useRes = await fetch(`${API_URL}/api/gpt/consume`, {
@@ -55,8 +61,17 @@ export const post: APIRoute = async (context) => {
     return new Response(resJson.message)
   }
 
-  // @ts-ignore
-  const response = await fetch(`${baseUrl}/v1/chat/completions`, initOptions) as Response
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const response = await fetch(`${baseUrl}/v1/chat/completions`, initOptions).catch((err: Error) => {
+    console.error(err)
+    return new Response(JSON.stringify({
+      error: {
+        code: err.name,
+        message: err.message,
+      },
+    }), { status: 500 })
+  }) as Response
 
-  return new Response(parseOpenAIStream(response))
+  return parseOpenAIStream(response) as Response
 }

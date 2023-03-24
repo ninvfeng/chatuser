@@ -1,8 +1,8 @@
 import Cosplay from './Cosplay.js'
 import { Show } from 'solid-js'
-import type { Accessor, Setter } from 'solid-js'
-import { createSignal, Index, onMount, onCleanup } from 'solid-js'
 import IconEnv from './icons/Env'
+import { createSignal, Index, onMount, onCleanup } from 'solid-js'
+import type { Accessor, Setter } from 'solid-js'
 
 interface Props {
   canEdit: Accessor<boolean>

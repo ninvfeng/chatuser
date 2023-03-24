@@ -15,3 +15,7 @@ export interface User {
   times: number,
   token: string
 }
+export interface ErrorMessage {
+  code: string
+  message: string
+}
