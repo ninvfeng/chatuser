@@ -177,7 +177,11 @@ export default () => {
     }
     archiveCurrentMessage()
     if(setting().continuousDialogue){
-      user().times = user().times - Math.ceil(messageList().length / 2)
+      let dec_times=Math.ceil(messageList().length / 2)
+      if(dec_times>5){
+        dec_times=5
+      }
+      user().times = user().times - dec_times
     }else{
       user().times = user().times-1
     }
