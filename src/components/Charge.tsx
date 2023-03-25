@@ -28,9 +28,8 @@ export default (props: Props) => {
         });
         const responseJson = await response.json();
         if (responseJson.code === 200) {
+            alert(responseJson.data.msg)
             props.setUser(responseJson.data)
-            setUrl(responseJson.data.url)
-            alert(responseJson.data)
             props.setShowCharge(false)
         } else {
             alert(responseJson.message)
