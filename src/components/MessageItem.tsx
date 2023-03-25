@@ -1,20 +1,22 @@
-import { createSignal } from 'solid-js'
+import { createSignal, Setter } from 'solid-js'
 import MarkdownIt from 'markdown-it'
 import mdKatex from 'markdown-it-katex'
 import mdHighlight from 'markdown-it-highlightjs'
 import { useClipboard, useEventListener } from 'solidjs-use'
 import IconRefresh from './icons/Refresh'
 import type { Accessor } from 'solid-js'
-import type { ChatMessage } from '@/types'
+import type { ChatMessage,Setting } from '@/types'
 
 interface Props {
   role: ChatMessage['role']
   message: Accessor<string> | string
   showRetry?: Accessor<boolean>
   onRetry?: () => void
+  setting: Accessor<Setting>
+  setSetting: Setter<Setting>
 }
 
-export default ({ role, message, showRetry, onRetry }: Props) => {
+export default ({ role, message, showRetry, onRetry, setting, setSetting }: Props) => {
   const roleClass = {
     system: 'bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300',
     user: 'bg-gradient-to-r from-purple-400 to-yellow-400',
@@ -81,12 +83,24 @@ export default ({ role, message, showRetry, onRetry }: Props) => {
               <IconRefresh />
               <span>重新生成</span>
             </div>
-            {/* <div class="gpt-retry-btn">
-              <span>免费额度3/50</span>
-            </div> */}
+            <div class="flex items-center gpt-retry-btn">
+              <span ml-1>连续对话</span>
+              <label class="relative inline-flex items-center cursor-pointer ml-1">
+                <input
+                  type="checkbox"
+                  checked={setting().continuousDialogue}
+                  class="sr-only peer"
+                  onChange={e => {
+                    setting().continuousDialogue=(e.target as HTMLInputElement).checked
+                    localStorage.setItem("setting", JSON.stringify(setting()));
+                    setSetting({ ...setting() })
+                  }}
+                />
+                <div class="w-9 h-5 bg-slate bg-op-15 peer-focus:outline-none peer-focus:ring-0  rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate"></div>
+              </label>
+            </div>
           </div>
         </div>
-
       )}
     </div>
   )

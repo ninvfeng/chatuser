@@ -19,3 +19,7 @@ export interface ErrorMessage {
   code: string
   message: string
 }
+
+export interface Setting {
+  continuousDialogue: boolean,
+}

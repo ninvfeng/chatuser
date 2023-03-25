@@ -10,7 +10,7 @@ import { generateSignature } from '@/utils/auth'
 import { useThrottleFn } from 'solidjs-use'
 import Charge from './Charge.jsx'
 import ErrorMessageItem from './ErrorMessageItem'
-import type { ChatMessage, ErrorMessage, User } from '@/types'
+import type { ChatMessage, ErrorMessage, User, Setting } from '@/types'
 
 export default () => {
   let inputRef: HTMLTextAreaElement
@@ -23,6 +23,9 @@ export default () => {
   const [controller, setController] = createSignal<AbortController>(null)
   const [isLogin, setIsLogin] = createSignal(true)
   const [showCharge, setShowCharge] = createSignal(false)
+  const [setting, setSetting] = createSignal<Setting>({
+    continuousDialogue:true
+  })
   const [user, setUser] = createSignal<User>({
     id: 0,
     email: '',
@@ -33,6 +36,13 @@ export default () => {
 
   onMount(async () => {
     try {
+
+      // 读取设置
+      if(localStorage.getItem("setting")){
+        setSetting(JSON.parse(localStorage.getItem("setting")))
+      }
+      
+      // 读取token
       if (localStorage.getItem(`token`)) {
         const token = localStorage.getItem(`token`)
         setIsLogin(true)
@@ -46,12 +56,15 @@ export default () => {
           }),
         });
         const responseJson = await response.json();
-        localStorage.setItem("user", JSON.stringify(responseJson.data));
-        setUser(responseJson.data)
+        if(responseJson.code==200){
+          localStorage.setItem("user", JSON.stringify(responseJson.data));
+          setUser(responseJson.data)          
+        }else{
+          setIsLogin(false)
+        }
       } else {
         setIsLogin(false)
       }
-
     } catch (err) {
       console.error(err)
     }
@@ -89,15 +102,30 @@ export default () => {
     try {
       const controller = new AbortController()
       setController(controller)
-      const requestMessageList = [...messageList()]
+
+            // 是否连续对话
+            // var requestMessageList=messageList()
+            // if(!setting().continuousDialogue){
+            //   requestMessageList=[{
+            //     role: 'user',
+            //     content: messageList()[messageList().length-1]['content'],
+            //   }]
+            // }
+      let requestMessageList = [...messageList()]
+
+      if(!setting().continuousDialogue){
+        requestMessageList = [[...messageList()][messageList().length-1]]
+      }
+
       if (currentSystemRoleSettings()) {
         requestMessageList.unshift({
           role: 'system',
           content: currentSystemRoleSettings(),
         })
       }
-      const timestamp = Date.now()
 
+      const timestamp = Date.now()
+      
       const response = await fetch('/api/generate', {
         method: 'POST',
         body: JSON.stringify({
@@ -148,7 +176,11 @@ export default () => {
       return
     }
     archiveCurrentMessage()
-    user().times = user().times - Math.ceil(messageList().length / 2)
+    if(setting().continuousDialogue){
+      user().times = user().times - Math.ceil(messageList().length / 2)
+    }else{
+      user().times = user().times-1
+    }
     setUser({ ...user() })
   }
 
@@ -227,7 +259,7 @@ export default () => {
       <div class="flex items-center">
         <Show when={isLogin() && user().nickname}>
           <p mt-1 op-60>
-            您好{user().nickname}, 您本月剩余额度{user().times}次
+            Hi,{user().nickname} 本月剩余额度{user().times}次
             <span onClick={() => { setShowCharge(true) }} class="border-1 px-2 py-1 ml-2 rounded-md transition-colors bg-slate/20 cursor-pointer hover:bg-slate/50">充值</span>
           </p>
         </Show>
@@ -271,6 +303,8 @@ export default () => {
             <MessageItem
               role={message().role}
               message={message().content}
+              setting={setting}
+              setSetting={setSetting}
               showRetry={() => (message().role === 'assistant' && index === messageList().length - 1)}
               onRetry={retryLastFetch}
             />
@@ -281,6 +315,8 @@ export default () => {
             <MessageItem
               role="assistant"
               message={currentAssistantMessage}
+              setting={setting}
+              setSetting={setSetting}
             />
           )
         }
