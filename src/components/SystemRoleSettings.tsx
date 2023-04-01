@@ -1,7 +1,6 @@
+import { Index, Show, createSignal, onMount } from 'solid-js'
 import Cosplay from './Cosplay.js'
-import { Show } from 'solid-js'
 import IconEnv from './icons/Env'
-import { createSignal, Index, onMount, onCleanup } from 'solid-js'
 import type { Accessor, Setter } from 'solid-js'
 
 interface Props {
@@ -25,11 +24,12 @@ export default (props: Props) => {
   }
 
   const saveCosplay = () => {
-    let name = window.prompt('请输入名称')
+    // eslint-disable-next-line no-alert
+    const name = window.prompt('请输入名称')
     setCosplays([
       ...cosplays(),
       {
-        name: name,
+        name,
         prompt: systemInputRef.value,
       },
     ])
@@ -44,13 +44,11 @@ export default (props: Props) => {
 
   onMount(() => {
     try {
-      if (localStorage.getItem('cosplays')) {
+      if (localStorage.getItem('cosplays'))
         setCosplays(JSON.parse(localStorage.getItem('cosplays')))
-      }
-      if (localStorage.getItem('currentCosplay')) {
-        props.setCurrentSystemRoleSettings(localStorage.getItem('currentCosplay'))
-      }
 
+      if (localStorage.getItem('currentCosplay'))
+        props.setCurrentSystemRoleSettings(localStorage.getItem('currentCosplay'))
     } catch (err) {
       console.error(err)
     }
@@ -70,10 +68,13 @@ export default (props: Props) => {
                 </span>
               </Show>
               <Show when={props.currentSystemRoleSettings()}>
-                <span onClick={() => {
-                  props.setCurrentSystemRoleSettings('')
-                  localStorage.removeItem('currentCosplay')
-                }} class="sys-edit-btn">
+                <span
+                  onClick={() => {
+                    props.setCurrentSystemRoleSettings('')
+                    localStorage.removeItem('currentCosplay')
+                  }}
+                  class="sys-edit-btn"
+                >
                   <span>清除</span>
                 </span>
               </Show>
@@ -96,14 +97,18 @@ export default (props: Props) => {
             <IconEnv />
             <span>预设角色:</span>
           </div>
-          <p class="my-2 leading-normal text-sm op-50 dark:op-60">给你的助手添加'人'设, 它将更好为您服务</p>
+          <p class="my-2 leading-normal text-sm op-50 dark:op-60">给你的助手添加人设, 它将更好为您服务</p>
           <div class="space-x-2 space-y-2">
             <Index each={cosplays()}>
               {(cosplay, i) => (
-                <span onClick={() => {
-                  systemInputRef.value = cosplay().prompt;
-                  setCosIndex(i)
-                }} class="inline-flex items-center justify-center gap-1 text-sm text-slate bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">{cosplay().name}</span>
+                <span
+                  onClick={() => {
+                    systemInputRef.value = cosplay().prompt
+                    setCosIndex(i)
+                  }}
+                  class="inline-flex items-center justify-center gap-1 text-sm text-slate bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50"
+                >{cosplay().name}
+                </span>
               )}
             </Index>
           </div>
