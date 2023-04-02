@@ -1,5 +1,5 @@
 import { toBlob, toJpeg } from 'html-to-image'
-import { Show } from 'solid-js'
+import { Show, onMount } from 'solid-js'
 import { copyToClipboard, dateFormat, isMobile } from '@/utils'
 import type { ChatMessage, Setting } from '@/types'
 import type { Accessor, Setter } from 'solid-js'
@@ -15,6 +15,20 @@ interface Props {
 
 export default (props: Props) => {
   let flomoRef: HTMLInputElement
+
+  onMount(async() => {
+    try {
+      // 读取设置
+      if (localStorage.getItem('setting')) {
+        if (!props.setting().flomoApi) {
+          props.setting().flomoApi = ''
+          props.setSetting({ ...props.setting() })
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  })
 
   async function exportJpg() {
     const messageContainer = document.querySelector(
