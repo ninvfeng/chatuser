@@ -10,6 +10,7 @@ import SystemRoleSettings from './SystemRoleSettings'
 import Login from './Login'
 import Charge from './Charge.jsx'
 import ErrorMessageItem from './ErrorMessageItem'
+import SettingItem from './SettingItem.jsx'
 import type { ChatMessage, ErrorMessage, Setting, User } from '@/types'
 
 export default () => {
@@ -23,8 +24,10 @@ export default () => {
   const [controller, setController] = createSignal<AbortController>(null)
   const [isLogin, setIsLogin] = createSignal(true)
   const [showCharge, setShowCharge] = createSignal(false)
+  const [showSetting, setShowSetting] = createSignal(false)
   const [setting, setSetting] = createSignal<Setting>({
     continuousDialogue: true,
+    flomoApi: '',
   })
   const [user, setUser] = createSignal<User>({
     id: 0,
@@ -286,12 +289,15 @@ export default () => {
       </Show>
 
       <Show when={isLogin()}>
-        <div onClick={randQuestion}>
-          <span class="mt-2 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
-            <IconRand />
-            <span>随便问问</span>
-          </span>
-        </div>
+        <Show when={messageList().length === 0}>
+          <div onClick={randQuestion}>
+            <span class="mt-2 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
+              <IconRand />
+              <span>随便问问</span>
+            </span>
+          </div>
+        </Show>
+
         <SystemRoleSettings
           canEdit={() => messageList().length === 0}
           systemRoleEditing={systemRoleEditing}
@@ -299,26 +305,25 @@ export default () => {
           currentSystemRoleSettings={currentSystemRoleSettings}
           setCurrentSystemRoleSettings={setCurrentSystemRoleSettings}
         />
+        <div id="message-container" class="px-1">
+          <Index each={messageList()}>
+            {(message, index) => (
+              <MessageItem
+                role={message().role}
+                message={message().content}
+                setting={setting}
+                showRetry={() => (message().role === 'assistant' && index === messageList().length - 1)}
+                onRetry={retryLastFetch}
+              />
+            )}
+          </Index>
+        </div>
 
-        <Index each={messageList()}>
-          {(message, index) => (
-            <MessageItem
-              role={message().role}
-              message={message().content}
-              setting={setting}
-              setSetting={setSetting}
-              showRetry={() => (message().role === 'assistant' && index === messageList().length - 1)}
-              onRetry={retryLastFetch}
-            />
-          )}
-        </Index>
         {
           currentAssistantMessage() && (
             <MessageItem
               role="assistant"
               message={currentAssistantMessage}
-              setting={setting}
-              setSetting={setSetting}
             />
           )
         }
@@ -332,6 +337,14 @@ export default () => {
             </div>
           )}
         >
+          <SettingItem
+            messageList={messageList}
+            onRetry={retryLastFetch}
+            setting={setting}
+            setSetting={setSetting}
+            showSetting={showSetting}
+            setShowSetting={setShowSetting}
+          />
           <div class="gen-text-wrapper" class:op-50={systemRoleEditing()}>
             <textarea
               ref={inputRef!}

@@ -9,10 +9,10 @@ export interface CosplayItem {
 }
 
 export interface User {
-  id: number,
-  email: string,
-  nickname: string,
-  times: number,
+  id: number
+  email: string
+  nickname: string
+  times: number
   token: string
 }
 export interface ErrorMessage {
@@ -21,5 +21,6 @@ export interface ErrorMessage {
 }
 
 export interface Setting {
-  continuousDialogue: boolean,
+  continuousDialogue: boolean
+  flomoApi: string
 }

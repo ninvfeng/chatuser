@@ -1,11 +1,10 @@
-import { createSignal, Setter } from 'solid-js'
+import { createSignal } from 'solid-js'
 import MarkdownIt from 'markdown-it'
 import mdKatex from 'markdown-it-katex'
 import mdHighlight from 'markdown-it-highlightjs'
 import { useClipboard, useEventListener } from 'solidjs-use'
-import IconRefresh from './icons/Refresh'
 import type { Accessor } from 'solid-js'
-import type { ChatMessage,Setting } from '@/types'
+import type { ChatMessage, Setting } from '@/types'
 
 interface Props {
   role: ChatMessage['role']
@@ -13,10 +12,10 @@ interface Props {
   showRetry?: Accessor<boolean>
   onRetry?: () => void
   setting: Accessor<Setting>
-  setSetting: Setter<Setting>
+  // setSetting: Setter<Setting>
 }
 
-export default ({ role, message, showRetry, onRetry, setting, setSetting }: Props) => {
+export default ({ role, message, showRetry, onRetry, setting }: Props) => {
   const roleClass = {
     system: 'bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300',
     user: 'bg-gradient-to-r from-purple-400 to-yellow-400',
@@ -70,36 +69,45 @@ export default ({ role, message, showRetry, onRetry, setting, setSetting }: Prop
     return ''
   }
 
+  const sendFlomo = async() => {
+    if (setting().flomoApi === '') {
+      alert('请先设置Flomo API链接')
+      return
+    }
+
+    const response = await fetch(`${setting().flomoApi}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: `${message}\n #ChatGPT`,
+      }),
+    })
+    const responseJson = await response.json()
+    alert(responseJson.message)
+  }
+
   return (
-    <div class="py-2 -mx-4 px-4 transition-colors md:hover:bg-slate/3">
-      <div class="flex gap-3 rounded-lg" class:op-75={role === 'user'}>
+    <div class="group py-2 -mx-4 px-4 transition-colors md:hover:bg-slate/3">
+      <div class="flex gap-3 rounded-lg relative" class:op-75={role === 'user'}>
         <div class={`shrink-0 w-7 h-7 mt-4 rounded-full op-80 ${roleClass[role]}`} />
         <div class="message prose break-words overflow-hidden" innerHTML={htmlString()} />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="hidden group-hover:block w-6 h-6 absolute right-0 top-0 cursor-pointer"
+          onClick={sendFlomo}
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+        </svg>
       </div>
       {showRetry?.() && onRetry && (
         <div>
-          <div class="fie px-3 mb-2 space-x-1">
-            <div onClick={onRetry} class="gpt-retry-btn">
-              <IconRefresh />
-              <span>重新生成</span>
-            </div>
-            <div class="flex items-center gpt-retry-btn">
-              <span ml-1>连续对话</span>
-              <label class="relative inline-flex items-center cursor-pointer ml-1">
-                <input
-                  type="checkbox"
-                  checked={setting().continuousDialogue}
-                  class="sr-only peer"
-                  onChange={e => {
-                    setting().continuousDialogue=(e.target as HTMLInputElement).checked
-                    localStorage.setItem("setting", JSON.stringify(setting()));
-                    setSetting({ ...setting() })
-                  }}
-                />
-                <div class="w-9 h-5 bg-slate bg-op-15 peer-focus:outline-none peer-focus:ring-0  rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
-              </label>
-            </div>
-          </div>
+          <div class="fie px-3 mb-2 space-x-1" />
         </div>
       )}
     </div>
