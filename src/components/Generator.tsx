@@ -279,9 +279,7 @@ export default () => {
 
       <Show when={showCharge()}>
         <Charge
-          showCharge={showCharge}
           setShowCharge={setShowCharge}
-          user={user}
           setUser={setUser}
         />
       </Show>
@@ -361,7 +359,6 @@ export default () => {
             />
             <button
               onClick={handleButtonClick}
-              disabled={systemRoleEditing()}
               h-12
               px-2
               py-2
