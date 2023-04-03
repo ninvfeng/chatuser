@@ -272,9 +272,7 @@ export default () => {
 
       <Show when={!isLogin()}>
         <Login
-          isLogin={isLogin}
           setIsLogin={setIsLogin}
-          user={user}
           setUser={setUser}
         />
       </Show>
@@ -324,6 +322,7 @@ export default () => {
             <MessageItem
               role="assistant"
               message={currentAssistantMessage}
+              setting={setting}
             />
           )
         }

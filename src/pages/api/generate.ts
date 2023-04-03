@@ -45,21 +45,20 @@ export const post: APIRoute = async(context) => {
   const useRes = await fetch(`${API_URL}/api/gpt/consume`, {
     headers: {
       'Content-Type': 'application/json',
-      'Token': token
+      'Token': token,
     },
     method: 'POST',
     body: JSON.stringify({
       model: 'gpt-3.5-turbo',
       token: JSON.stringify(messages).length * 4,
       times: Math.ceil(messages.length / 2),
-      app_key: import.meta.env.APP_KEY
+      app_key: import.meta.env.APP_KEY,
     }),
   })
-  const res = await useRes.text();
+  const res = await useRes.text()
   const resJson = JSON.parse(res)
-  if (resJson.code !== 200) {
+  if (resJson.code !== 200)
     return new Response(resJson.message)
-  }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error

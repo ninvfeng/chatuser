@@ -1,16 +1,13 @@
-import { Index, Show, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import type { User } from '@/types'
-import type { Accessor, Setter } from 'solid-js'
+import type { Setter } from 'solid-js'
 interface Props {
-  showCharge: Accessor<boolean>
   setShowCharge: Setter<boolean>
-  user: Accessor<User>
   setUser: Setter<User>
 }
 
 export default (props: Props) => {
   let emailRef: HTMLInputElement
-  let codeRef: HTMLInputElement
 
   const [countdown, setCountdown] = createSignal(0)
   const [url, setUrl] = createSignal('')
@@ -80,7 +77,7 @@ export default (props: Props) => {
           })
           const responseJson = await response.json()
           if (responseJson.code === 200) {
-            if (responseJson.data.msg == '充值已到账') {
+            if (responseJson.data.msg === '充值已到账') {
               props.setUser(responseJson.data)
               alert(responseJson.data.msg)
               props.setShowCharge(false)
