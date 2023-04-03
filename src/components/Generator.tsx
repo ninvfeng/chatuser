@@ -72,6 +72,7 @@ export default () => {
 
   const handleButtonClick = async() => {
     const inputValue = inputRef.value
+    console.log(inputValue)
     if (!inputValue)
       return
 
