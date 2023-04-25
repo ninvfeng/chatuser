@@ -35,11 +35,6 @@ export const post: APIRoute = async(context) => {
       },
     }), { status: 401 })
   }
-  const initOptions = generatePayload(apiKey, messages)
-  // #vercel-disable-blocks
-  if (httpsProxy)
-    initOptions.dispatcher = new ProxyAgent(httpsProxy)
-  // #vercel-end
 
   // 消耗次数
   const useRes = await fetch(`${API_URL}/api/gpt/consume`, {
@@ -59,6 +54,17 @@ export const post: APIRoute = async(context) => {
   const resJson = JSON.parse(res)
   if (resJson.code !== 200)
     return new Response(resJson.message)
+
+  messages.unshift({
+    role: 'system',
+    content: '你是GPT4,比GPT3更聪明,请认真思考后回答',
+  })
+
+  const initOptions = generatePayload(apiKey, messages)
+  // #vercel-disable-blocks
+  if (httpsProxy)
+    initOptions.dispatcher = new ProxyAgent(httpsProxy)
+  // #vercel-end
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
