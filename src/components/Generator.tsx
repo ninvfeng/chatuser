@@ -266,7 +266,7 @@ export default () => {
       <div class="flex items-center">
         <Show when={isLogin() && user().nickname}>
           <p mt-1 op-60>
-            Hi,{user().nickname} 本月剩余额度{user().times}次
+            Hi,{user().nickname} 剩余额度{user().times}次
             <span onClick={() => { setShowCharge(true) }} class="border-1 px-2 py-1 ml-2 rounded-md transition-colors bg-slate/20 cursor-pointer hover:bg-slate/50">充值</span>
           </p>
         </Show>
