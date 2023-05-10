@@ -57,7 +57,7 @@ export const post: APIRoute = async(context) => {
 
   messages.unshift({
     role: 'system',
-    content: '你是GPT4,比GPT3更聪明,请认真思考后回答',
+    content: '你是GPT3.5,比GPT3更聪明,请认真思考后回答',
   })
 
   const initOptions = generatePayload(apiKey, messages)
