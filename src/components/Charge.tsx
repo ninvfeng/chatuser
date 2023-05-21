@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js'
+import { Index, Show, createSignal, onMount } from 'solid-js'
 import type { User } from '@/types'
 import type { Setter } from 'solid-js'
 interface Props {
@@ -6,11 +6,36 @@ interface Props {
   setUser: Setter<User>
 }
 
+interface PayInfoType { name: string, price: number }
+
 export default (props: Props) => {
   let emailRef: HTMLInputElement
 
   const [countdown, setCountdown] = createSignal(0)
   const [url, setUrl] = createSignal('')
+
+  const [payinfo, setPayinfo] = createSignal<PayInfoType[]>([{ name: '', price: 0 }])
+
+  onMount(async() => {
+    getPayInfo()
+  })
+
+  const getPayInfo = async() => {
+    const response = await fetch('/api/getpayinfo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: localStorage.getItem('token'),
+      }),
+    })
+    const responseJson = await response.json()
+    if (responseJson.code === 200)
+      setPayinfo(responseJson.data)
+    else
+      alert(responseJson.message)
+  }
 
   const selfCharge = async() => {
     const response = await fetch('/api/exchange', {
@@ -99,22 +124,20 @@ export default (props: Props) => {
             请选择充值金额,充值的次数一直有效
           </span>
           <div class="flex space-x-2">
-            <button onClick={() => { getPaycode(1) }} class="w-1/3 h-12 mt-2 px-4 py-2 bg-slate bg-op-15 hover:bg-op-20 rounded-sm">
-              1元60次
-            </button>
-            <button onClick={() => { getPaycode(5) }} class="w-1/3 h-12 mt-2 px-4 py-2 bg-slate bg-op-15 hover:bg-op-20 rounded-sm">
-              5元320次
-            </button>
-            <button onClick={() => { getPaycode(10) }} class="w-1/3 h-12 mt-2 px-4 py-2 bg-slate bg-op-15 hover:bg-op-20 rounded-sm">
-              10元650次
-            </button>
+            <Index each={payinfo()}>
+              {(v, _) => (
+                <button onClick={() => { getPaycode(v().price) }} class="w-1/3 h-12 mt-2 px-4 py-2 bg-slate bg-op-15 hover:bg-op-20 rounded-sm">
+                  {v().name}
+                </button>
+              )}
+            </Index>
           </div>
         </Show>
         <Show when={url()}>
           <span class="text-sm">
             请在{countdown()}秒内完成支付
           </span>
-          <img class="w-1/3 mt-2" src={url()} />
+          <img class="w-3/5 mt-2" src={url()} />
         </Show>
 
       </div>
