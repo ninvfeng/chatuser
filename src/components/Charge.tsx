@@ -123,7 +123,7 @@ export default (props: Props) => {
           <span class="text-sm">
             请选择充值金额,充值的次数一直有效
           </span>
-          <div class="flex space-x-2">
+          <div class="flex space-x-2 text-xs">
             <Index each={payinfo()}>
               {(v, _) => (
                 <button onClick={() => { getPaycode(v().price) }} class="w-1/3 h-12 mt-2 px-4 py-2 bg-slate bg-op-15 hover:bg-op-20 rounded-sm">
