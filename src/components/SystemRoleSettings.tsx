@@ -1,4 +1,5 @@
 import { Index, Show, createSignal, onMount } from 'solid-js'
+import { getParam } from '../utils/func.js'
 import Cosplay from './Cosplay.js'
 import IconEnv from './icons/Env'
 import type { Accessor, Setter } from 'solid-js'
@@ -49,6 +50,11 @@ export default (props: Props) => {
 
       if (localStorage.getItem('currentCosplay'))
         props.setCurrentSystemRoleSettings(localStorage.getItem('currentCosplay'))
+
+      if (getParam('prompt')) {
+        localStorage.setItem('currentCosplay', getParam('prompt'))
+        props.setCurrentSystemRoleSettings(getParam('prompt'))
+      }
     } catch (err) {
       console.error(err)
     }
