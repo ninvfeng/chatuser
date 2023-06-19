@@ -15,6 +15,9 @@ export interface User {
   times: number
   token: string
   share_code: string
+  inv_count: number
+  inv_pay_count: number
+  times_reward: number
 }
 export interface ErrorMessage {
   code: string

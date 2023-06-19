@@ -36,6 +36,9 @@ export default () => {
     times: 0,
     token: '',
     share_code: '',
+    inv_count: 0,
+    inv_pay_count: 0,
+    times_reward: 0,
   })
 
   onMount(async() => {
