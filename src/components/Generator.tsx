@@ -35,6 +35,7 @@ export default () => {
     nickname: '',
     times: 0,
     token: '',
+    share_code: '',
   })
 
   onMount(async() => {
@@ -72,7 +73,6 @@ export default () => {
 
   const handleButtonClick = async() => {
     const inputValue = inputRef.value
-    console.log(inputValue)
     if (!inputValue)
       return
 
@@ -343,6 +343,7 @@ export default () => {
             setSetting={setSetting}
             showSetting={showSetting}
             setShowSetting={setShowSetting}
+            user={user}
           />
           <div class="gen-text-wrapper" class:op-50={systemRoleEditing()}>
             <textarea

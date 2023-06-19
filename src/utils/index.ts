@@ -1,6 +1,8 @@
 export async function copyToClipboard(text: string) {
   try {
-    return await navigator.clipboard.writeText(text)
+    await navigator.clipboard.writeText(text)
+    alert('复制成功')
+    return
   } catch {
     const element = document.createElement('textarea')
     const previouslyFocusedElement = document.activeElement

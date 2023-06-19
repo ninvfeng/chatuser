@@ -14,6 +14,7 @@ export interface User {
   nickname: string
   times: number
   token: string
+  share_code: string
 }
 export interface ErrorMessage {
   code: string
