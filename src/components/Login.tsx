@@ -10,7 +10,6 @@ interface Props {
 export default (props: Props) => {
   let emailRef: HTMLInputElement
   let codeRef: HTMLInputElement
-  let shareCodeRef: HTMLInputElement
 
   const [countdown, setCountdown] = createSignal(0)
   const [code, setCode] = createSignal('')

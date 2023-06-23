@@ -39,6 +39,7 @@ export default () => {
     inv_count: 0,
     inv_pay_count: 0,
     times_reward: 0,
+    dir_inv_rate: 0,
   })
 
   onMount(async() => {

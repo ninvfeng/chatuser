@@ -252,33 +252,35 @@ export default (props: Props) => {
               保存
             </button>
           </div>
-          <div class="mt-4 op-80">
-            <div>↓邀请链接, 邀请好友充值可获得20%奖励</div>
-            <div class="flex">
-              <div onClick={() => { copyToClipboard(`${location.origin}?code=${props.user().share_code}`) }} class="mt-1 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
-                {`${location.origin}?code=${props.user().share_code}`}
+          <Show when={props.user().share_code && props.user().dir_inv_rate > 0}>
+            <div class="mt-4 op-80">
+              <div>↓邀请链接, 邀请好友充值可获得{props.user().dir_inv_rate * 100}%奖励</div>
+              <div class="flex">
+                <div onClick={() => { copyToClipboard(`${location.origin}?code=${props.user().share_code}`) }} class="mt-1 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
+                  {`${location.origin}?code=${props.user().share_code}`}
+                </div>
+                <div onClick={() => { copyToClipboard(`${location.origin}?code=${props.user().share_code}`) }} class="mt-1 ml-2 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
+                  复制
+                </div>
               </div>
-              <div onClick={() => { copyToClipboard(`${location.origin}?code=${props.user().share_code}`) }} class="mt-1 ml-2 inline-flex items-center justify-center gap-1 text-sm  bg-slate/20 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-slate/50">
-                复制
+              <div class="text-sm mt-1">
+                <div>
+                  累计邀请人数:{props.user().inv_count}
+                </div>
+                <Show when={props.user().inv_pay_count > 0}>
+                  <div>
+                    邀请付费人数:{props.user().inv_pay_count}
+                  </div>
+                </Show>
+                <Show when={props.user().times_reward > 0}>
+                  <div>
+                    累计奖励次数:{props.user().times_reward}
+                  </div>
+                </Show>
               </div>
             </div>
-            <div class="text-sm mt-1">
-              <div>
-                累计邀请人数:{props.user().inv_count}
-              </div>
-              <Show when={props.user().inv_pay_count > 0}>
-                <div>
-                  邀请付费人数:{props.user().inv_pay_count}
-                </div>
-              </Show>
-              <Show when={props.user().times_reward > 0}>
-                <div>
-                  累计奖励次数:{props.user().times_reward}
-                </div>
-              </Show>
-            </div>
+          </Show>
 
-          </div>
         </div>
       </Show>
 

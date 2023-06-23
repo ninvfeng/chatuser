@@ -18,6 +18,7 @@ export interface User {
   inv_count: number
   inv_pay_count: number
   times_reward: number
+  dir_inv_rate: number
 }
 export interface ErrorMessage {
   code: string
