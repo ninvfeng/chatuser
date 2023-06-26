@@ -4,7 +4,7 @@ export const post: APIRoute = async(context) => {
   const body = await context.request.json()
 
   const { email, code, shareCode } = body
-  const referer = context.request.headers.get('referer')
+  const referer = context.request.headers.get('origin')
 
   const response = await fetch(`${import.meta.env.API_URL}/login/loreg`, {
     headers: {
