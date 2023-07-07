@@ -60,7 +60,25 @@ export const post: APIRoute = async(context) => {
     content: '你是GPT3.5,比GPT3更聪明,请认真思考后回答',
   })
 
-  const initOptions = generatePayload(apiKey, messages)
+  // 从服务器获取可用key
+  const domainRes = await fetch(`${import.meta.env.API_URL}/api/gpt/getChatInfo`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify({
+      app_key: import.meta.env.APP_KEY,
+    }),
+  })
+  const chatInfo = await domainRes.json() as { data: { key: string, domain: string } }
+  let apikeyTemp = apiKey
+  let baseUrlTemp = baseUrl
+  if (chatInfo.data && chatInfo.data.domain) {
+    apikeyTemp = chatInfo.data.key
+    baseUrlTemp = chatInfo.data.domain
+  }
+
+  const initOptions = generatePayload(apikeyTemp, messages)
   // #vercel-disable-blocks
   if (httpsProxy)
     initOptions.dispatcher = new ProxyAgent(httpsProxy)
@@ -68,7 +86,7 @@ export const post: APIRoute = async(context) => {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
-  const response = await fetch(`${baseUrl}/v1/chat/completions`, initOptions).catch((err: Error) => {
+  const response = await fetch(`${baseUrlTemp}/v1/chat/completions`, initOptions).catch((err: Error) => {
     console.error(err)
     return new Response(JSON.stringify({
       error: {
