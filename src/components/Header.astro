@@ -10,11 +10,11 @@ import Themetoggle from './Themetoggle.astro';
   </div>
   <div class="fi mt-2">
     <span class="gpt-subtitle">ChatGPT</span>
-    <span class="ml-1 text-xl op-60">3.5</span>
+    <span class="ml-1 text-xl op-60">gpt4o mini</span>
     {
       import.meta.env.GPT4_LINK
         ? (
-        <a target="_blank" href={import.meta.env.GPT4_LINK} class="ml-4 text-sm b-1 px-2 py-1 rounded-md op-60">升级为GPT4.0</a>
+        <a target="_blank" href={import.meta.env.GPT4_LINK} class="ml-4 text-sm b-1 px-2 py-1 rounded-md op-60">升级为gpt4o</a>
           )
         : null
     }
